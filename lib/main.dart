@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,7 +9,6 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     Widget textSection = new Container(
       padding: const EdgeInsets.all(32.0),
       child: new Text(
@@ -84,43 +84,45 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          new Container(
-            alignment: Alignment.topCenter,
-            padding: EdgeInsets.only(top: 8.0),
-            child: new Icon(
-              Icons.star,
-              textDirection: TextDirection.ltr,
-              color: Colors.red[500],
-            ),
-          ),
-          new Container(
-            alignment: Alignment.topCenter,
-            padding: EdgeInsets.only(top: 12.0),
-            child: new Text(
-              '41',
-              textDirection: TextDirection.ltr,
-            ),
-          ),
+          new FavoriteWidget(),
+//          new Container(
+//            alignment: Alignment.topCenter,
+//            padding: EdgeInsets.only(top: 8.0),
+//            child: new Icon(
+//              Icons.star,
+//              textDirection: TextDirection.ltr,
+//              color: Colors.red[500],
+//            ),
+//          ),
+//          new Container(
+//            alignment: Alignment.topCenter,
+//            padding: EdgeInsets.only(top: 12.0),
+//            child: new Text(
+//              '41',
+//              textDirection: TextDirection.ltr,
+//            ),
+//          ),
         ],
       ),
     );
 
-
     return new MaterialApp(
-        home: new Scaffold(
-          body: new ListView(
-            children: [
-              new Image.asset(
-                'images/lake.jpg',
-                height: 240.0,
-                fit: BoxFit.cover,
-              ),
-              titleSection,
-              buttonSection,
-              textSection,
-            ],
-          ),
+      home: new Scaffold(
+        body: new ListView(
+          children: [
+            new ParentWidget(),
+//            new TapboxAWidget(),
+//            new Image.asset(
+//              'images/lake.jpg',
+//              height: 240.0,
+//              fit: BoxFit.cover,
+//            ),
+//            titleSection,
+//            buttonSection,
+//            textSection,
+          ],
         ),
+      ),
     );
 
 //    return new MaterialApp(
@@ -132,6 +134,56 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class FavoriteWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return new _favoriteWidgeState();
+    throw UnimplementedError();
+  }
+}
+
+class _favoriteWidgeState extends State<FavoriteWidget> {
+  bool _isFavoriteed = true;
+  int _favotiteCount = 41;
+
+  void _toggleFavotite() {
+    setState(() {
+      if (_isFavoriteed) {
+        _isFavoriteed = false;
+        _favotiteCount--;
+      } else {
+        _isFavoriteed = true;
+        _favotiteCount++;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        new Container(
+          padding: new EdgeInsets.all(0.0),
+          child: new IconButton(
+            icon: (_isFavoriteed
+                ? new Icon(Icons.star)
+                : new Icon(Icons.star_border)),
+            color: Colors.red[500],
+            onPressed: _toggleFavotite,
+          ),
+        ),
+        new SizedBox(
+          width: 18.0,
+          child: new Container(
+            child: new Text('$_favotiteCount'),
+          ),
+        )
+      ],
+    );
+    throw UnimplementedError();
+  }
+}
 
 class imageSection extends StatelessWidget {
   @override
@@ -260,6 +312,105 @@ class titleSection extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+    throw UnimplementedError();
+  }
+}
+
+//使用手势，TapboxA管理自身状态
+class TapboxAWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _TapboxAWidgetState();
+    throw UnimplementedError();
+  }
+}
+
+class _TapboxAWidgetState extends State<TapboxAWidget> {
+  bool _active = false;
+  void _handleTap() {
+    setState(() {
+      _active = !_active;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new GestureDetector(
+      onTap: _handleTap,
+      child: new Container(
+        child: Center(
+          child: new Text(
+            _active ? 'activie' : 'inactive',
+            style: new TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          color: _active ? Colors.green : Colors.grey,
+        ),
+      ),
+    );
+    throw UnimplementedError();
+  }
+}
+
+//ParentWidget 为TapboxB管理状态。
+//---------------------------------ParentWidget------------------------------------//
+class ParentWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return new _parentWidgetState();
+    throw UnimplementedError();
+  }
+}
+
+class _parentWidgetState extends State<ParentWidget> {
+  bool _active = false;
+
+  void _handleTapboxChanged(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      child: new TapboxB(
+          active: _active,
+          onChanged: _handleTapboxChanged),
+    );
+    throw UnimplementedError();
+  }
+}
+
+//-------------------------------TapboxB---------------------------------------//
+class TapboxB extends StatelessWidget {
+  TapboxB({Key key,this.active:false,@required this.onChanged})
+  :super(key:key);
+  final bool active;
+  final ValueChanged<bool> onChanged;
+  
+  void _handleTap() {
+    onChanged(!active);
+  }
+  @override
+  Widget build(BuildContext context) {
+    return new GestureDetector(
+      onTap: _handleTap,
+      child: new Container(
+        child: new Text(
+          active?'active':'Inactive',
+          style: new TextStyle(fontSize: 32.0,color: Colors.white),
+        ),
+        decoration: new BoxDecoration(
+          color: active?Colors.green:Colors.grey,
+        ),
+        width: 200.0,
+        height: 200.0,
       ),
     );
     throw UnimplementedError();
