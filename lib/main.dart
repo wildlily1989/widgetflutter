@@ -110,7 +110,8 @@ class MyApp extends StatelessWidget {
       home: new Scaffold(
         body: new ListView(
           children: [
-            new ParentWidget(),
+            new TapCParentWidget(),
+//            new ParentWidget(),
 //            new TapboxAWidget(),
 //            new Image.asset(
 //              'images/lake.jpg',
@@ -379,9 +380,9 @@ class _parentWidgetState extends State<ParentWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      child: new TapboxB(
-          active: _active,
-          onChanged: _handleTapboxChanged),
+      child: new Center(
+        child: new TapboxB(active: _active, onChanged: _handleTapboxChanged),
+      ),
     );
     throw UnimplementedError();
   }
@@ -389,28 +390,133 @@ class _parentWidgetState extends State<ParentWidget> {
 
 //-------------------------------TapboxB---------------------------------------//
 class TapboxB extends StatelessWidget {
-  TapboxB({Key key,this.active:false,@required this.onChanged})
-  :super(key:key);
+  TapboxB({Key key, this.active: false, @required this.onChanged})
+      : super(key: key);
   final bool active;
   final ValueChanged<bool> onChanged;
-  
+
   void _handleTap() {
     onChanged(!active);
   }
+
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
       onTap: _handleTap,
       child: new Container(
-        child: new Text(
-          active?'active':'Inactive',
-          style: new TextStyle(fontSize: 32.0,color: Colors.white),
+        child: new Center(
+          child: new Text(
+            active ? 'active' : 'Inactive',
+            style: new TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
         ),
         decoration: new BoxDecoration(
-          color: active?Colors.green:Colors.grey,
+          color: active ? Colors.green : Colors.grey,
         ),
         width: 200.0,
         height: 200.0,
+      ),
+    );
+    throw UnimplementedError();
+  }
+}
+
+//混合管理
+//----------------------------------ParentWidget------------------------------------//
+class TapCParentWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return new _tapCParentWidget();
+    throw UnimplementedError();
+  }
+}
+
+class _tapCParentWidget extends State<TapCParentWidget> {
+  bool _active = false;
+
+  void _handleTapboxChanged(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      child: new Center(
+        child: new TapboxC(active: _active, onChanged: _handleTapboxChanged),
+      ),
+    );
+
+    throw UnimplementedError();
+  }
+}
+
+//---------------------------------TapboxC---------------------------------------//
+class TapboxC extends StatefulWidget {
+  TapboxC({Key key, this.active: false, @required this.onChanged})
+      : super(key: key);
+
+  final bool active;
+  final ValueChanged<bool> onChanged;
+  @override
+  State<StatefulWidget> createState() {
+    return new _TapboxCState();
+    throw UnimplementedError();
+  }
+}
+
+class _TapboxCState extends State<TapboxC> {
+  bool _highlight = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTap() {
+    widget.onChanged(!widget.active);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //this examle adds a green border on tap down.
+    //On tap up,the square changes to the opposite state.
+    return new GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onTap: _handleTap,
+      child: new Container(
+        child: new Center(
+          child: new Text(
+            widget.active ? 'Activie' : "Inavtive",
+            style: new TextStyle(fontSize: 22.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+            color: widget.active ? Colors.green : Colors.grey,
+            border: _highlight
+                ? new Border.all(
+                    color: Colors.teal,
+                    width: 10.0,
+                  )
+                : null),
       ),
     );
     throw UnimplementedError();
